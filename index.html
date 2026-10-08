@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Harvest Haven - Farm & Hazard Simulator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app-container">
+    <!-- Top Header HUD -->
+    <header class="game-header">
+      <div class="brand-section">
+        <div class="brand-title">🌾 HARVEST HAVEN</div>
+        <div id="level-badge" class="level-badge">Lv. 1</div>
+      </div>
+
+      <div class="stats-group">
+        <!-- Day & Clock -->
+        <div class="stat-chip">
+          <span id="hud-day" style="font-weight:700;">Day 1</span>
+          <span id="hud-time" style="color:var(--text-muted);">06:00 AM</span>
+        </div>
+
+        <!-- Weather -->
+        <div id="hud-weather" class="stat-chip">
+          <span class="weather-icon">☀️</span> Sunny
+        </div>
+
+        <!-- Gold -->
+        <div class="stat-chip">
+          <span>🪙</span>
+          <span id="hud-gold" class="val">100g</span>
+        </div>
+
+        <!-- Stamina Meter -->
+        <div class="meter-container">
+          <div class="meter-label">
+            <span>⚡ Stamina</span>
+            <span id="stamina-text">100 / 100</span>
+          </div>
+          <div class="meter-track">
+            <div id="stamina-fill" class="meter-fill stamina-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- Water Meter -->
+        <div class="meter-container">
+          <div class="meter-label">
+            <span>💧 Water</span>
+            <span id="water-text">20 / 20</span>
+          </div>
+          <div class="meter-track">
+            <div id="water-fill" class="meter-fill water-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- XP Meter -->
+        <div class="meter-container" style="min-width: 90px;">
+          <div class="meter-label">
+            <span>⭐ Farm XP</span>
+          </div>
+          <div class="meter-track">
+            <div id="xp-fill" class="meter-fill xp-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button id="btn-shop" class="btn-header" title="Open Market [M]">🛒 Market</button>
+        <button id="btn-quests" class="btn-header" title="View Quests [Q]">📜 Quests</button>
+        <button id="btn-almanac" class="btn-header" title="Crop Encyclopedia">📖 Almanac</button>
+        <button id="btn-sleep" class="btn-header" title="Sleep & End Day [Z]">💤 Sleep</button>
+        <button id="btn-music" class="btn-header" title="Toggle Music">🎵 Music: OFF</button>
+        <button id="btn-sfx" class="btn-header active" title="Toggle SFX">🔊 SFX: ON</button>
+        <button id="btn-help" class="btn-header" title="How to Play [H]">❓ Help</button>
+      </div>
+    </header>
+
+    <!-- Main Viewport Canvas -->
+    <main id="viewport-wrapper">
+      <canvas id="game-canvas" width="1152" height="768"></canvas>
+
+      <!-- Hotbar Toolbar -->
+      <div id="hotbar-wrapper">
+        <div id="hotbar"></div>
+      </div>
+    </main>
+
+    <!-- Quick Footer Bar -->
+    <footer class="quick-controls">
+      <div>
+        <strong>Controls:</strong>
+        <span class="control-pill">WASD / Arrows</span> Move
+        <span class="control-pill">Space / E</span> Use Tool / Interact
+        <span class="control-pill">1 - 8</span> Select Hotbar
+        <span class="control-pill">Mouse Click</span> Walk / Target Tile
+      </div>
+      <div>
+        <span class="control-pill">M</span> Market
+        <span class="control-pill">Q</span> Quests
+        <span class="control-pill">H</span> Help
+        <span class="control-pill">Z</span> Sleep
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal Overlays -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <!-- Market / Shop Modal -->
+    <div id="shop-modal" class="modal-window hidden">
+      <div class="modal-header">
+        <h3>🛒 Farmer's Market & Tool Depot</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Quick Sell Harvest Section -->
+        <div class="sell-box">
+          <div class="shop-section-title">🌾 Sell Harvested Produce</div>
+          <div id="harvest-sell-list"></div>
+          <div class="sell-footer">
+            <div>Total Value: <span id="sell-total-worth" style="color:var(--accent-gold); font-weight:800;">0g</span></div>
+            <button id="btn-sell-all" class="btn-sell-all">Sell All Harvest</button>
+          </div>
+        </div>
+
+        <!-- Buy Seeds & Items Section -->
+        <div class="shop-section-title">🌱 Seeds, Tools & Defenses</div>
+        <div id="shop-items-list" class="shop-grid"></div>
+      </div>
+    </div>
+
+    <!-- Quests Modal -->
+    <div id="quest-modal" class="modal-window hidden">
+      <div class="modal-header">
+        <h3>📜 Quests & Farm Milestones</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="quest-list" class="quest-list"></div>
+      </div>
+    </div>
+
+    <!-- Almanac Modal -->
+    <div id="almanac-modal" class="modal-window hidden">
+      <div class="modal-header">
+        <h3>📖 Agricultural Almanac</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="almanac-crop-list" style="display:flex; flex-direction:column; gap:12px;"></div>
+      </div>
+    </div>
+
+    <!-- Daily Morning Gazette / Summary Modal -->
+    <div id="summary-modal" class="modal-window hidden">
+      <div class="modal-header">
+        <h3 id="summary-day-title">📰 Farm Gazette - Day Recap</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="summary-box">
+          <h2 style="color:var(--accent-gold);">Good Morning, Farmer! ☀️</h2>
+          <p style="color:var(--text-muted); font-size:14px;">You had a restful sleep in the farmhouse. Your stamina and water can are fully restored.</p>
+          <div class="summary-stats-grid">
+            <div class="summary-stat-cell">
+              <div class="label">Gold Earned</div>
+              <div id="summary-gold" class="val">+0g</div>
+            </div>
+            <div class="summary-stat-cell">
+              <div class="label">Crops Harvested</div>
+              <div id="summary-crops" class="val">0</div>
+            </div>
+            <div class="summary-stat-cell">
+              <div class="label">Today's Forecast</div>
+              <div id="summary-forecast" class="val" style="color:var(--accent-sky);">Sunny</div>
+            </div>
+          </div>
+          <button id="btn-summary-continue" class="btn-continue">Begin the Day</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help & Manual Modal -->
+    <div id="help-modal" class="modal-window hidden">
+      <div class="modal-header">
+        <h3>❓ Farmer's Field Manual</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body" style="font-size: 13px; line-height: 1.6; color: #cbd5e1;">
+        <h4 style="color:var(--accent-gold); margin-bottom:4px;">🌾 The Farming Cycle</h4>
+        <p>1. <strong>Till Soil</strong>: Select the Hoe <code>[1]</code> and press <code>[E]</code> or click green grass to till fertile dirt.</p>
+        <p>2. <strong>Water Soil</strong>: Select the Watering Can <code>[2]</code> and water tilled dirt. Crops <em>only grow when watered</em>! Refill your can at the upper-right pond or well when empty.</p>
+        <p>3. <strong>Plant Seeds</strong>: Select seed packets <code>[5]</code> or <code>[6]</code> and plant them in tilled soil.</p>
+        <p>4. <strong>Harvest Crops</strong>: When crops mature and sparkle, select the Scythe <code>[3]</code> to harvest them into your bag!</p>
+        <p>5. <strong>Sell & Profit</strong>: Open the Market <code>[M]</code> or visit the wooden Shipping Bin near your cabin to sell produce for Gold.</p>
+
+        <h4 style="color:#ef4444; margin-top:14px; margin-bottom:4px;">⚠️ Hazards & Defense Tactics</h4>
+        <p>🦅 <strong>Hungry Crows</strong>: Crows swoop down to eat unprotected crops! Run up and press <code>[Space]</code> to shoo them away. Buy a <strong>Scarecrow</strong> to protect a 5x5 area automatically.</p>
+        <p>🌿 <strong>Invasive Weeds</strong>: Wild weeds sap soil nutrients. Cut them with the Hoe or Scythe for compost!</p>
+        <p>⚡ <strong>Thunderstorms & Lightning</strong>: Lightning strikes can spark small fires! Rush with your Watering Can to extinguish the flame before crops burn.</p>
+        <p>🐾 <strong>Mischievous Moles</strong>: Bonk surfacing moles with your Hoe to chase them away and earn bonus gold!</p>
+        <p>🔥 <strong>Heatwaves</strong>: Extreme sun dries soil quickly. Keep your plots watered to prevent crops from wilting!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts in dependency order -->
+  <script src="src/constants.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/particles.js"></script>
+  <script src="src/crops.js"></script>
+  <script src="src/hazards.js"></script>
+  <script src="src/world.js"></script>
+  <script src="src/player.js"></script>
+  <script src="src/ui.js"></script>
+  <script src="src/game.js"></script>
+</body>
+</html>

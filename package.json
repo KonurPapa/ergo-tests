@@ -1,0 +1,19 @@
+{
+  "name": "harvest-haven",
+  "version": "1.0.0",
+  "description": "Top-down grid-based farming simulator and hazard survival game",
+  "main": "index.html",
+  "scripts": {
+    "test": "node tests/simulation.test.js",
+    "start": "python3 -m http.server 8080"
+  },
+  "keywords": [
+    "game",
+    "farming-simulator",
+    "html5",
+    "canvas",
+    "grid-game",
+    "procedural-audio"
+  ],
+  "license": "MIT"
+}
